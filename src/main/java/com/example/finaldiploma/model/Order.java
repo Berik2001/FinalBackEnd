@@ -30,4 +30,10 @@ public class Order {
 
     private String username;
 
+    private String phone;
+
+    @ManyToOne()
+
+    private User user;
+
 }

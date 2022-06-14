@@ -12,6 +12,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @Builder
 public class AuthenticationResponse {
+    private Long id;
     private String authenticationToken;
     private String username;
 
@@ -20,5 +21,7 @@ public class AuthenticationResponse {
     private String refreshToken;
 
     private Instant expiresAt;
+
+    private String phone;
 }
 

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -43,6 +44,7 @@ public class AuthService {
     public String signup(SignupRequest signupRequest) throws Exception {
         User userByEmail = userRepository.findByEmail(signupRequest.getEmail());
         User userByUsername = userRepository.findByUsername(signupRequest.getUsername()).stream().findFirst().orElse(null);
+        User userByPhone = userRepository.findByPhone(signupRequest.getPhone()).stream().findFirst().orElse(null);
         if (userByEmail != null) {
             throw new Exception("user find by email");
         } else if (userByUsername != null) {
@@ -52,6 +54,7 @@ public class AuthService {
         User user = new User();
         user.setUsername(signupRequest.getUsername());
         user.setEmail(signupRequest.getEmail());
+        user.setPhone(signupRequest.getPhone());
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
         user.setCreated(Instant.now());
         user.setEnabled(false);
@@ -101,18 +104,23 @@ public class AuthService {
     public AuthenticationResponse login(AuthRequest authRequest) {
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(),
                 authRequest.getPassword()));
-        String role = userRepository.findByUsername(authRequest.getUsername()).get().getRole();
+
+        User user = userRepository.findByUsername(authRequest.getUsername()).get();
+        String role=user.getRole();
         if (role == null) {
             role = "customer";
         }
+
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         String token = jwtProvider.generateToken(authenticate);
         return AuthenticationResponse.builder()
+                .id(user.getId())
                 .authenticationToken(token)
                 .refreshToken(refreshTokenService.generateRefreshToken().getToken())
                 .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
                 .username(authRequest.getUsername())
                 .role(role)
+                .phone(user.getPhone())
                 .build();
     }
 

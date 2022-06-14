@@ -16,7 +16,8 @@ import java.time.Instant;
 @Table(name = "users")
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class
+User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +29,8 @@ public class User {
     @Email
     @NotEmpty(message = "Email is required")
     private String email;
+    @Column(name = "phone")
+    private String phone;
     @Column(name = "password")
     private String password;
     private Instant created;
